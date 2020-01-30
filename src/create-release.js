@@ -19,23 +19,40 @@ async function run() {
     const draft = core.getInput('draft', { required: false }) === 'true';
     const prerelease = core.getInput('prerelease', { required: false }) === 'true';
 
+    // Get a relase
+    const getReleaseResponse = await github.repos.listReleases({
+      owner,
+      repo,
+    });
+
+    let exists = undefined
+    for (let i = 0; i < getReleaseResponse.data.length; ++i) {
+      if (getReleaseResponse.data[i].name == releaseName) {
+        exists = i;
+        break;
+      }
+    }
+
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
     // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
-    const createReleaseResponse = await github.repos.createRelease({
-      owner,
-      repo,
-      tag_name: tag,
-      name: releaseName,
-      body,
-      draft,
-      prerelease
-    });
+    let createReleaseResponse = undefined;
+    if (exists === undefined) {
+      createReleaseResponse = await github.repos.createRelease({
+        owner,
+        repo,
+        tag_name: tag,
+        name: releaseName,
+        body,
+        draft,
+        prerelease
+      });
+    }
 
     // Get the ID, html_url, and upload URL for the created Release from the response
     const {
-      data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl }
-    } = createReleaseResponse;
+      id: releaseId, html_url: htmlUrl, upload_url: uploadUrl
+    } = exists ? getReleaseResponse.data[exists] : createReleaseResponse.data;
 
     // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
     core.setOutput('id', releaseId);
