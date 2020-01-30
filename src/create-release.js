@@ -30,7 +30,7 @@ async function run() {
 
     let exists;
     for (let i = 0; i < getReleaseResponse.data.length; i += 1) {
-      if (getReleaseResponse.data[i].name === releaseName) {
+      if (getReleaseResponse.data[i].tag_name === tag) {
         exists = i;
         break;
       }
