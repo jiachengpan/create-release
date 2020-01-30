@@ -7899,9 +7899,9 @@ async function run() {
     }
 
     // Get the ID, html_url, and upload URL for the created Release from the response
-    const { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } = exists
-      ? getReleaseResponse.data[exists]
-      : createReleaseResponse.data;
+    const { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } = (exists === undefined)
+      ? createReleaseResponse.data
+      : getReleaseResponse.data[exists];
 
     // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
     core.setOutput('id', releaseId);
