@@ -7872,6 +7872,8 @@ async function run() {
       repo
     });
 
+    console.log('data: ', getReleaseResponse);
+
     let exists;
     for (let i = 0; i < getReleaseResponse.data.length; i += 1) {
       if (getReleaseResponse.data[i].name === releaseName) {
