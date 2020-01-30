@@ -7906,6 +7906,7 @@ async function run() {
     core.setOutput('html_url', htmlUrl);
     core.setOutput('upload_url', uploadUrl);
   } catch (error) {
+    console.log(util.inspect(error));
     core.setFailed(util.inspect(error));
   }
 }
