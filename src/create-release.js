@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const { GitHub, context } = require('@actions/github');
+const util = require('util');
 
 async function run() {
   try {
@@ -22,12 +23,12 @@ async function run() {
     // Get a relase
     const getReleaseResponse = await github.repos.listReleases({
       owner,
-      repo,
+      repo
     });
 
-    let exists = undefined
-    for (let i = 0; i < getReleaseResponse.data.length; ++i) {
-      if (getReleaseResponse.data[i].name == releaseName) {
+    let exists;
+    for (let i = 0; i < getReleaseResponse.data.length; i += 1) {
+      if (getReleaseResponse.data[i].name === releaseName) {
         exists = i;
         break;
       }
@@ -36,7 +37,7 @@ async function run() {
     // Create a release
     // API Documentation: https://developer.github.com/v3/repos/releases/#create-a-release
     // Octokit Documentation: https://octokit.github.io/rest.js/#octokit-routes-repos-create-release
-    let createReleaseResponse = undefined;
+    let createReleaseResponse;
     if (exists === undefined) {
       createReleaseResponse = await github.repos.createRelease({
         owner,
@@ -50,16 +51,16 @@ async function run() {
     }
 
     // Get the ID, html_url, and upload URL for the created Release from the response
-    const {
-      id: releaseId, html_url: htmlUrl, upload_url: uploadUrl
-    } = exists ? getReleaseResponse.data[exists] : createReleaseResponse.data;
+    const { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } = exists
+      ? getReleaseResponse.data[exists]
+      : createReleaseResponse.data;
 
     // Set the output variables for use by other actions: https://github.com/actions/toolkit/tree/master/packages/core#inputsoutputs
     core.setOutput('id', releaseId);
     core.setOutput('html_url', htmlUrl);
     core.setOutput('upload_url', uploadUrl);
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(util.inspect(error));
   }
 }
 
